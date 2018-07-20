@@ -1,0 +1,28 @@
+th {
+    background-color: #a0a0a0;
+    height:55px;
+} 
+.table-fixed tbody{
+    height:600px;
+    overflow-y:auto;
+    width:100%;
+}
+.table-fixed thead,
+.table-fixed tbody,
+.table-fixed tr,
+.table-fixed td,
+.table-fixed th {
+    display:block;
+    overflow-x:auto;
+}
+.table-fixed tr:after {
+    content: "";
+    display: block;
+    visibility: hidden;
+    clear: both;
+}
+.table-fixed tbody td,
+.table-fixed thead > tr > th {
+    border-bottom-width: 0;
+    float: left;
+}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <h1 class="page-header">{{ title }}</h1>
+    <div>Lijst is gegenereerd door script op {{ date }} om {{ time }}</div>
+    <div>Er kunnen samples in de lijst staan die al opnieuw zijn opgepakt, maar alleen indien de laatste actie op dezelfde dag heeft plaatsgevonden als de verwijdering.y</div>
+    <div>
+        <table class="table table-fixed table-striped table-hover table-responsive">
+            <thead>
+                {% for h in header %}
+                <tr>
+                    <th class="col-md-1">{{ h.head1 }}</th>
+                    <th class="col-md-2">{{ h.head2 }}</th>
+                    <th class="col-md-1">{{ h.head3 }}</th>
+                    <th class="col-md-2">{{ h.head4 }}</th>
+                    <th class="col-md-2">{{ h.head5 }}</th>
+                    <th class="col-md-4">{{ h.head6 }}</th>
+                </tr>
+                {% endfor %}
+            </thead>
+            <tbody>
+                {% for s in samples %}
+                <tr>
+                    <td class="col-md-1">{{ s.col1 }}</td>
+                    <td class="col-md-2">{{ s.col2 }}</td>
+                    <td class="col-md-1">{{ s.col3 }}</td>
+                    <td class="col-md-2">{{ s.col4 }}</td>
+                    <td class="col-md-2">{{ s.col5 }}</td>
+                    <td class="col-md-4">{{ s.col6 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
