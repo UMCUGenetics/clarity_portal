@@ -1,5 +1,5 @@
 from flask import render_template
-from queries import app
+from portal import app
 import os
 import datetime
 from time import gmtime, strftime

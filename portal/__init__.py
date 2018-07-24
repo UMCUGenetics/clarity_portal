@@ -3,6 +3,6 @@ from flask_bootstrap import Bootstrap
 
 app = Flask(__name__)
 
-from queries import views
+from portal import views
 
 bootstrap = Bootstrap(app)
