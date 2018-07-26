@@ -7,8 +7,8 @@ import sys
 sys.path.insert(0, "/var/www/html/clarity_portal")
 
 # Load app
-from clarity_portal import app as application
-from clarity_portal.utils import WSGIMiddleware
+from portal import app as application
+from portal.utils import WSGIMiddleware
 
 # Setup prefix
 application.wsgi_app = WSGIMiddleware(application.wsgi_app, "/clarity_portal")
