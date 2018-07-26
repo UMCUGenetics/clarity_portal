@@ -7,16 +7,14 @@
     <div>
         <table class="table table-fixed table-striped table-hover table-responsive">
             <thead>
-                {% for h in header %}
                 <tr>
-                    <th class="col-md-1">{{ h.head1 }}</th>
-                    <th class="col-md-2">{{ h.head2 }}</th>
-                    <th class="col-md-1">{{ h.head3 }}</th>
-                    <th class="col-md-2">{{ h.head4 }}</th>
-                    <th class="col-md-2">{{ h.head5 }}</th>
-                    <th class="col-md-4">{{ h.head6 }}</th>
+                    <th class="col-md-1">{{ header.head1 }}</th>
+                    <th class="col-md-2">{{ header.head2 }}</th>
+                    <th class="col-md-1">{{ header.head3 }}</th>
+                    <th class="col-md-2">{{ header.head4 }}</th>
+                    <th class="col-md-2">{{ header.head5 }}</th>
+                    <th class="col-md-4">{{ header.head6 }}</th>
                 </tr>
-                {% endfor %}
             </thead>
             <tbody>
                 {% for s in samples %}
