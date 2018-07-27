@@ -13,7 +13,7 @@ def index():
 
 @app.route('/removed_samples')
 def removed_samples():
-    removed_samples_file = 'data_files/removed_samples.txt'
+    removed_samples_file = app.config['REMOVED_SAMPLES_FILE']
 
     if os.path.exists(removed_samples_file):
         t = os.path.getmtime(removed_samples_file)
