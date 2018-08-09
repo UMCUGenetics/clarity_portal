@@ -1,7 +1,4 @@
-th {
-    background-color: #a0a0a0;
-    height:55px;
-} 
+
 .table-fixed tbody{
     height:600px;
     overflow-y:auto;
@@ -14,6 +11,10 @@ th {
 .table-fixed th {
     display:block;
     overflow-x:auto;
+}
+.table-fixed th {
+    background-color: #a0a0a0;
+    height:55px;
 }
 .table-fixed tr:after {
     content: "";

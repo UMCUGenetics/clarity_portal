@@ -19,6 +19,7 @@
             <div class+"collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li><a href="{{ url_for('removed_samples') }}">Verwijderde samples</a></li>
+                    <li><a href="{{ url_for('submit_samples') }}">Submit samples</a></li>
                 </ul>
             </div>
         </div>
@@ -27,8 +28,12 @@
 
 {% block styles %}
 {{super()}}
-<link rel="stylesheet"
-      href="{{url_for('.static', filename='style.css')}}">
+    <link rel="stylesheet" href="{{url_for('.static', filename='style.css')}}">
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://code.jquery.com/jquery-2.1.4.js"></script>
+    <script src="{{ url_for("static", filename="page.js") }}"></script>
 {% endblock %}
 
 {% block content %}

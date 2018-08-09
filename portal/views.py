@@ -4,6 +4,7 @@ from time import gmtime, strftime
 from flask import render_template, url_for, redirect
 
 from . import app
+from .forms import SequencingRunForm
 
 
 @app.route('/')
@@ -49,3 +50,13 @@ def removed_samples():
         return render_template('removed_samples.html', title='Verwijderde samples', header=header, samples=samples, date=date, time=time)
     else:
         return render_template('no_file.html', title='Verwijderde samples')
+
+
+@app.route('/submit_samples', methods=['GET', 'POST'])
+def submit_samples():
+    form = SequencingRunForm()
+
+    if form.validate_on_submit():
+        print form.data
+
+    return render_template('submit_samples.html', title='Submit samples', form=form,)

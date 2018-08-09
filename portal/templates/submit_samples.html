@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "_formhelpers.html" import render_field, render_table_field %}
+{% block app_content %}
+<h1 class="page-header">{{ title }}</h1>
+
+<form method="POST" action="{{ url_for('submit_samples')}}" class="form-horizontal">
+    {{ form.hidden_tag() }}
+    <div class="form-group" data-toggle="fieldset" id="sample-fieldset">
+        {{ render_field(form.indication_code) }}
+        <div class="col-sm-offset-1 col-sm-10">
+            <table class="table table-bordered table-hover table-condensed">
+                <thead>
+                    <tr class="active">
+                        <th></th>
+                        <th>Sample naam</th>
+                        <th>Barcode</th>
+                        <th>Exoom equivalenten</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sample_form in form.samples %}
+                    <tr class="form-inline" data-toggle="fieldset-entry">
+                        <td>{{loop.index}}</td>
+                        <td>{{ render_table_field(sample_form.sample_name) }}</td>
+                        <td>{{ render_table_field(sample_form.barcode) }}</td>
+                        <td>{{ render_table_field(sample_form.exome_equivalent) }}</td>
+                        <td><button type="button" class="btn btn-danger btn-sm" data-toggle="fieldset-remove-row" id="sample-{{loop.index0}}-remove"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-1 col-sm-10">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <button class="btn btn-success" data-toggle="fieldset-add-row" data-target="#sample-fieldset">Sample toevoegen</button>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
