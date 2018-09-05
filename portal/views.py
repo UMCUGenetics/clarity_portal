@@ -33,7 +33,9 @@ def removed_samples():
                     'head3': line_data[2],
                     'head4': line_data[3],
                     'head5': line_data[4],
-                    'head6': line_data[5]
+                    'head6': line_data[5],
+                    'head7': line_data[6],
+                    'head8': line_data[7]
                 }
 
             # Parse samples
@@ -47,7 +49,9 @@ def removed_samples():
                         'col3': line_data[2],
                         'col4': line_data[3],
                         'col5': line_data[4],
-                        'col6': line_data[5]
+                        'col6': line_data[5],
+                        'col7': line_data[6],
+                        'col8': line_data[7]
                     }
                 )
         return render_template('removed_samples.html', title='Verwijderde samples', header=header, samples=samples, date=date, time=time)

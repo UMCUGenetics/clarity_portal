@@ -1,8 +1,9 @@
-
-.table-fixed tbody{
+.table-fixed {
+    width:100%;
+}
+.table-fixed tbody {
     height:600px;
     overflow-y:auto;
-    width:100%;
 }
 .table-fixed thead,
 .table-fixed tbody,
@@ -25,5 +26,6 @@
 .table-fixed tbody td,
 .table-fixed thead > tr > th {
     border-bottom-width: 0;
+    width: 12.5%;
     float: left;
 }
