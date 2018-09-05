@@ -54,7 +54,7 @@ class SubmitSampleForm(FlaskForm):
             sample_name_prefixes = app.config['LIMS_INDICATIONS'][self.indicationcode.data]['sample_name_prefixes']
             sample_name_prefix_error = True
             for sample_name_prefix in sample_name_prefixes:
-                if sample['name'].startswith(sample_name_prefix) and len(sample['name']) > len(sample_name_prefix):
+                if sample['name'].startswith(sample_name_prefix) and sample['name'] != sample_name_prefix:
                     sample_name_prefix_error = False
 
             # Check sample name
