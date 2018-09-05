@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block app_content %}
+<h1 class="page-header">{{ title }}<br><small>Samples zijn succesvol gesubmit naar clarity lims.</small></h1>
+
+<dl class="dl-horizontal">
+  <dt>Gebruikersnaam</dt> <dd>{{form.username.data}}</dd>
+  <dt>Indicatie code</dt> <dd>{{form.indicationcode.data}}</dd>
+  <dt>Projectnaam</dt> <dd>{{project_name}}</dd>
+</dl>
+
+<h4>Samples</h4>
+<table class="table table-bordered table-hover table-condensed">
+    <thead>
+        <tr>
+            <th class="col-md-1">Sample naam</th>
+            <th class="col-md-1">Barcode</th>
+            <th class="col-md-1">Exoom equivalenten</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sample in form.parsed_samples %}
+        <tr>
+            <td class="col-md-1">{{ sample['name'] }}</td>
+            <td class="col-md-1">{{ sample['barcode'] }}</td>
+            <td class="col-md-1">{{ sample['exoom_count'] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

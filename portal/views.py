@@ -1,10 +1,13 @@
 import os
 from time import gmtime, strftime
+from datetime import date
+from xml.dom import minidom
 
 from flask import render_template, url_for, redirect
+from genologics.entities import Sample, Project, Containertype, Container, Workflow
 
-from . import app
-from .forms import SequencingRunForm
+from . import app, lims
+from .forms import SubmitSampleForm
 
 
 @app.route('/')
@@ -54,9 +57,38 @@ def removed_samples():
 
 @app.route('/submit_samples', methods=['GET', 'POST'])
 def submit_samples():
-    form = SequencingRunForm()
+    form = SubmitSampleForm()
 
     if form.validate_on_submit():
-        print form.data
+        # Create lims project
+        project_name = '{prefix}_{week}'.format(
+            prefix=app.config['LIMS_INDICATIONS'][form.indicationcode.data]['project_name_prefix'],
+            week=date.today().isocalendar()[1]
+        )
+        lims_project = Project.create(lims, name=project_name, researcher=form.researcher, udf={'Application': form.indicationcode.data})
 
-    return render_template('submit_samples.html', title='Submit samples', form=form,)
+        # Create Samples
+        lims_container_type = Containertype(lims, id='2')  # Tube
+        sample_artifacts = []
+        for sample in form.parsed_samples:
+            lims_container = Container.create(lims, type=lims_container_type, name=sample['name'])
+            lims_sample = Sample.create(lims, container=lims_container, position='1:1', project=lims_project, name=sample['name'], udf={'Sample Type': 'DNA library'})
+            print lims_sample.name, lims_sample.artifact.name
+            artifact = lims_sample.artifact
+            sample_artifacts.append(artifact)
+
+            # Add reagent label (barcode)
+            artifact_xml_dom = minidom.parseString(artifact.xml())
+            for artifact_name_node in artifact_xml_dom.getElementsByTagName('name'):
+                parent = artifact_name_node.parentNode
+                reagent_label = artifact_xml_dom.createElement('reagent-label')
+                reagent_label.setAttribute('name', sample['barcode'])
+                parent.appendChild(reagent_label)
+                lims.put(artifact.uri, artifact_xml_dom.toxml(encoding='utf-8'))
+
+        # Route artifacts to workflow
+        workflow = Workflow(lims, id=app.config['LIMS_INDICATIONS'][form.indicationcode.data]['workflow_id'])
+        lims.route_artifacts(sample_artifacts, workflow_uri=workflow.uri)
+
+        return render_template('submit_samples_done.html', title='Submit samples', project_name=project_name, form=form)
+    return render_template('submit_samples.html', title='Submit samples', form=form)
