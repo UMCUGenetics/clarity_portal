@@ -8,7 +8,6 @@ LIMS_INDICATIONS = {
         'project_name_prefix': 'PMC_DXweek',
         'sample_name_prefixes': ['PMCBM', 'PMGBM'],
         'workflow_id': '701',  # Dx Sequence facility v1.1
-        'sequencing_project': 'PMC'
     }
 }
 

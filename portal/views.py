@@ -81,7 +81,6 @@ def submit_samples():
                 'Dx Fragmentlengte (bp) Externe meting': form.pool_fragment_length.data,
                 'Dx Conc. (ng/ul) Externe meting': form.pool_concentration.data,
                 'Dx Exoomequivalent': form.sum_exoom_count,
-                'Dx sequencing project': app.config['LIMS_INDICATIONS'][form.indicationcode.data]['sequencing_project'],
             }
             lims_sample = Sample.create(lims, container=lims_container, position='1:1', project=lims_project, name=sample['name'], udf=sample_udf_data)
             print lims_sample.name, lims_sample.artifact.name
