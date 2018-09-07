@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField
+from wtforms import StringField, TextAreaField, DecimalField
 from wtforms.validators import DataRequired, AnyOf
 
 from . import lims, app
@@ -8,6 +8,8 @@ from . import lims, app
 class SubmitSampleForm(FlaskForm):
     username = StringField('Gebruikersnaam', validators=[DataRequired()])
     indicationcode = StringField('Indicatie code', validators=[DataRequired(), AnyOf(app.config['LIMS_INDICATIONS'].keys(), message='Foute indicatie code')])
+    pool_fragment_length = DecimalField('Pool - Fragment lengte')
+    pool_concentration = DecimalField('Pool - Concentratie')
     samples = TextAreaField(
         'Samples',
         description="Een regel per sample en kolommen gescheiden door tabs. Kolom volgorde: Sample naam, Barcode, Exoom equivalenten.",
