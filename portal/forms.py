@@ -8,8 +8,8 @@ from . import lims, app
 class SubmitSampleForm(FlaskForm):
     username = StringField('Gebruikersnaam', validators=[DataRequired()])
     indicationcode = StringField('Indicatie code', validators=[DataRequired(), AnyOf(app.config['LIMS_INDICATIONS'].keys(), message='Foute indicatie code')])
-    pool_fragment_length = DecimalField('Pool - Fragment lengte')
-    pool_concentration = DecimalField('Pool - Concentratie')
+    pool_fragment_length = DecimalField('Pool - Fragment lengte (bp)')
+    pool_concentration = DecimalField('Pool - Concentratie (ng/ul)')
     samples = TextAreaField(
         'Samples',
         description="Een regel per sample en kolommen gescheiden door tabs. Kolom volgorde: Sample naam, Barcode, Exoom equivalenten.",
