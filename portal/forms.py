@@ -19,12 +19,12 @@ class SubmitSampleForm(FlaskForm):
     # Filled in validation function.
     researcher = None
     parsed_samples = []
-    sum_exoom_count = 0
+    sum_exome_count = 0
 
     def validate(self):
         """Extra validation, used to validate submitted samples."""
         self.parsed_samples = []
-        self.sum_exoom_count = 0
+        self.sum_exome_count = 0
         sample_names = []
         barcodes = []
 
@@ -47,8 +47,8 @@ class SubmitSampleForm(FlaskForm):
                 return False
 
             try:
-                sample = {'name': data[0], 'barcode': data[1], 'exoom_count': float(data[2])}
-            except ValueError:  # only possible for exoom_count
+                sample = {'name': data[0], 'barcode': data[1], 'exome_count': float(data[2])}
+            except ValueError:  # only possible for exome_count
                 self.samples.errors.append('Regel {0}, kolom 3 is geen getal: {1}'.format(idx+1, data[2]))
                 return False
 
@@ -82,11 +82,11 @@ class SubmitSampleForm(FlaskForm):
                 sample['reagent_type'] = reagent_types[0]
                 barcodes.append(sample['barcode'])
 
-            self.sum_exoom_count += sample['exoom_count']
+            self.sum_exome_count += sample['exome_count']
             self.parsed_samples.append(sample)
 
-        if self.sum_exoom_count > 51:
-            self.samples.errors.append('Totaal aantal exoom equivalenten ({0}) is groter dan 51.'.format(self.sum_exoom_count))
+        if self.sum_exome_count > 51:
+            self.samples.errors.append('Totaal aantal exoom equivalenten ({0}) is groter dan 51.'.format(self.sum_exome_count))
             return False
 
         return True

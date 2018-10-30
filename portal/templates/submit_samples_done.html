@@ -8,7 +8,7 @@
     <dt>Projectnaam</dt> <dd>{{project_name}}</dd>
     <dt>Pool - Fragment lengte</dt> <dd>{{form.pool_fragment_length.data}}</dd>
     <dt>Pool - Concentratie</dt> <dd>{{form.pool_concentration.data}}</dd>
-    <dt>Pool - Exoom equivalenten</dt> <dd>{{form.sum_exoom_count}}</dd>
+    <dt>Pool - Exoom equivalenten</dt> <dd>{{form.sum_exome_count}}</dd>
 </dl>
 
 <h4>Samples</h4>
@@ -25,7 +25,7 @@
         <tr>
             <td class="col-md-1">{{ sample['name'] }}</td>
             <td class="col-md-1">{{ sample['barcode'] }}</td>
-            <td class="col-md-1">{{ sample['exoom_count'] }}</td>
+            <td class="col-md-1">{{ sample['exome_count'] }}</td>
         </tr>
         {% endfor %}
     </tbody>

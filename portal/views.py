@@ -8,6 +8,7 @@ from genologics.entities import Sample, Project, Containertype, Container, Workf
 
 from . import app, lims
 from .forms import SubmitSampleForm
+from .utils import send_email
 
 
 @app.route('/')
@@ -65,11 +66,14 @@ def submit_samples():
 
     if form.validate_on_submit():
         # Create lims project
-        project_name = '{prefix}_{week}'.format(
-            prefix=app.config['LIMS_INDICATIONS'][form.indicationcode.data]['project_name_prefix'],
-            week=date.today().isocalendar()[1]
+        lims_project = Project.create(
+            lims,
+            name=app.config['LIMS_INDICATIONS'][form.indicationcode.data]['project_name_prefix'],
+            researcher=form.researcher,
+            udf={'Application': form.indicationcode.data}
         )
-        lims_project = Project.create(lims, name=project_name, researcher=form.researcher, udf={'Application': form.indicationcode.data})
+        lims_project.name = '{0}_{1}'.format(lims_project.name, lims_project.id)
+        lims_project.put()
 
         # Create Samples
         lims_container_type = Containertype(lims, id='2')  # Tube
@@ -80,7 +84,7 @@ def submit_samples():
                 'Sample Type': 'DNA library',
                 'Dx Fragmentlengte (bp) Externe meting': form.pool_fragment_length.data,
                 'Dx Conc. (ng/ul) Externe meting': form.pool_concentration.data,
-                'Dx Exoomequivalent': sample['exoom_count'],
+                'Dx Exoomequivalent': sample['exome_count'],
             }
             lims_sample = Sample.create(lims, container=lims_container, position='1:1', project=lims_project, name=sample['name'], udf=sample_udf_data)
             print lims_sample.name, lims_sample.artifact.name
@@ -100,5 +104,17 @@ def submit_samples():
         workflow = Workflow(lims, id=app.config['LIMS_INDICATIONS'][form.indicationcode.data]['workflow_id'])
         lims.route_artifacts(sample_artifacts, workflow_uri=workflow.uri)
 
-        return render_template('submit_samples_done.html', title='Submit samples', project_name=project_name, form=form)
+        # Send email
+        subject = "Clarity Portal Sample Upload - {0}".format(lims_project.name)
+        message = "Gebruikersnaam\t{0}\n".format(form.username.data)
+        message += "Indicatie code\t{0}\n".format(form.indicationcode.data)
+        message += "Pool - Fragment lengte\t{0}\n".format(form.pool_fragment_length.data)
+        message += "Pool - Concentratie\t{0}\n".format(form.pool_concentration.data)
+        message += "Pool - Exoom equivalenten\t{0}\n\n".format(form.sum_exome_count)
+
+        for sample in form.parsed_samples:
+            message += "{0}\t{1}\t{2}\n".format(sample['name'], sample['barcode'], sample['exome_count'])
+        send_email(app.config['EMAIL']['from'], app.config['EMAIL']['to'], subject, message)
+
+        return render_template('submit_samples_done.html', title='Submit samples', project_name=lims_project.name, form=form)
     return render_template('submit_samples.html', title='Submit samples', form=form)
