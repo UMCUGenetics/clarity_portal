@@ -1,9 +1,12 @@
-import os
+from os import path
+from tempfile import mkdtemp
+from shutil import rmtree
 from time import gmtime, strftime
 from datetime import date
 from xml.dom import minidom
 
 from flask import render_template, url_for, redirect
+from werkzeug.utils import secure_filename
 from genologics.entities import Sample, Project, Containertype, Container, Workflow
 
 from . import app, lims
@@ -20,8 +23,8 @@ def index():
 def removed_samples():
     removed_samples_file = app.config['REMOVED_SAMPLES_FILE']
 
-    if os.path.exists(removed_samples_file):
-        t = os.path.getmtime(removed_samples_file)
+    if path.exists(removed_samples_file):
+        t = path.getmtime(removed_samples_file)
         date = strftime("%d %b %Y", gmtime(t))
         time = strftime("%H:%M:%S", gmtime(t))
 
@@ -74,6 +77,16 @@ def submit_samples():
         )
         lims_project.name = '{0}_{1}'.format(lims_project.name, lims_project.id)
         lims_project.put()
+
+        # Save attachment
+        attachment = form.attachment.data
+        if attachment:
+            temp_dir = mkdtemp()
+            attachment_path = path.join(temp_dir, secure_filename(attachment.filename))
+            attachment.save(attachment_path)
+            print attachment_path
+            lims.upload_new_file(lims_project, attachment_path)
+            rmtree(temp_dir)
 
         # Create Samples
         lims_container_type = Containertype(lims, id='2')  # Tube

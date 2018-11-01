@@ -28,3 +28,12 @@
 </div>
 {% endif %}
 {% endmacro %}
+
+{% macro render_file_field(field) %}
+<div class="form-group {% if field.flags.required %}required{% endif %}">
+    {{ field.label(class_='col-sm-3 control-label') }}
+    <div class="col-sm-9">
+        {{ field(**kwargs) }}
+    </div>
+</div>
+{% endmacro %}

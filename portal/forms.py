@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, DecimalField
+from flask_wtf.file import FileField
 from wtforms.validators import DataRequired, AnyOf
 
 from . import lims, app
@@ -15,6 +16,7 @@ class SubmitSampleForm(FlaskForm):
         description="Een regel per sample en kolommen gescheiden door tabs. Kolom volgorde: Sample naam, Barcode, Exoom equivalenten.",
         validators=[DataRequired()]
     )
+    attachment = FileField()
 
     # Filled in validation function.
     researcher = None
