@@ -2,8 +2,10 @@
 
 {% block app_content %}
     <h1 class="page-header">{{ title }}</h1>
-    <div>Lijst is gegenereerd door script op {{ date }} om {{ time }}</div>
-    <div>Er kunnen samples in de lijst staan die al opnieuw zijn opgepakt, maar alleen indien de laatste gestarte stap op dezelfde dag gestart is als de verwijdering heeft plaats gevonden.</div>
+    <div>De samples in onderstaande lijst zijn samples die de laatste 6 maanden verwijderd zijn uit een stap in Clarty LIMS en niet opnieuw zijn opgepakt.</div>
+    <div>Lijst is gegenereerd door een script op {{ date }} om {{ time }}</div>
+    <div>Hierdoor kunnen er samples in de lijst staan die al opnieuw zijn opgepakt, deze zullen de volgende dag uit de lijst verdwijnen (mits deze minimaal 1 dag later zijn opgepakt dan de datum van verwijdering).</div>
+    <div>Bij problemen en vragen neem contact op met de Clarity administrators via dlabclarity@umcutrecht.nl</div>
     <div>
         <table class="table table-fixed table-striped table-hover table-responsive">
             <thead>
