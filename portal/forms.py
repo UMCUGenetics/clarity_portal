@@ -13,7 +13,7 @@ class SubmitSampleForm(FlaskForm):
     pool_concentration = DecimalField('Pool - Concentratie (ng/ul)')
     samples = TextAreaField(
         'Samples',
-        description="Een regel per sample en kolommen gescheiden door tabs. Kolom volgorde: Sample naam, Barcode, Exoom equivalenten.",
+        description="Een regel per sample en kolommen gescheiden door tabs. Kolom volgorde: Sample naam, Barcode, Exoom equivalenten, Sample type.",
         validators=[DataRequired()]
     )
     attachment = FileField()
@@ -43,13 +43,16 @@ class SubmitSampleForm(FlaskForm):
         # Parse samples data
         for idx, line in enumerate(self.samples.data.split('\n')):
             data = line.strip().split('\t')
+            sample_type = ''
 
-            if len(data) != 3:
+            if len(data) < 3:
                 self.samples.errors.append('Regel {0} bevat geen 3 kolommen: {1}'.format(idx+1, data))
                 return False
+            elif len(data) == 4:
+                sample_type = data[4]  # TODO: Check sample type!
 
             try:
-                sample = {'name': data[0], 'barcode': data[1], 'exome_count': float(data[2])}
+                sample = {'name': data[0], 'barcode': data[1], 'exome_count': float(data[2]), 'type': sample_type}
             except ValueError:  # only possible for exome_count
                 self.samples.errors.append('Regel {0}, kolom 3 is geen getal: {1}'.format(idx+1, data[2]))
                 return False

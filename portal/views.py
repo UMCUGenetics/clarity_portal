@@ -121,13 +121,14 @@ def submit_samples():
         subject = "Clarity Portal Sample Upload - {0}".format(lims_project.name)
         message = "Gebruikersnaam\t{0}\n".format(form.username.data)
         message += "Indicatie code\t{0}\n".format(form.indicationcode.data)
+        message += "Lims Project naam\t{0}\n".format(lims_project.name)
         message += "Pool - Fragment lengte\t{0}\n".format(form.pool_fragment_length.data)
         message += "Pool - Concentratie\t{0}\n".format(form.pool_concentration.data)
         message += "Pool - Exoom equivalenten\t{0}\n\n".format(form.sum_exome_count)
-
+        message += "Sample naam\tBarcode\tExome equivalenten\tSample type\n"
         for sample in form.parsed_samples:
-            message += "{0}\t{1}\t{2}\n".format(sample['name'], sample['barcode'], sample['exome_count'])
-        send_email(app.config['EMAIL']['from'], app.config['EMAIL']['to'], subject, message)
+            message += "{0}\t{1}\t{2}\t{3}\n".format(sample['name'], sample['barcode'], sample['exome_count'], sample['type'])
+        send_email(app.config['EMAIL_FROM'], app.config['LIMS_INDICATIONS'][form.indicationcode.data]['email_to'], subject, message)
 
         return render_template('submit_samples_done.html', title='Submit samples', project_name=lims_project.name, form=form)
     return render_template('submit_samples.html', title='Submit samples', form=form)
