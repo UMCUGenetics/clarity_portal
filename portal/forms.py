@@ -8,7 +8,7 @@ from . import lims, app
 
 class SubmitSampleForm(FlaskForm):
     username = StringField('Gebruikersnaam', validators=[DataRequired()])
-    indicationcode = StringField('Indicatie code', validators=[DataRequired(), AnyOf(app.config['LIMS_INDICATIONS'].keys(), message='Foute indicatie code')])
+    indicationcode = StringField('Indicatie code', validators=[DataRequired(), AnyOf(app.config['LIMS_INDICATIONS'].keys(), message='Foute indicatie code.')])
     pool_fragment_length = DecimalField('Pool - Fragment lengte (bp)')
     pool_concentration = DecimalField('Pool - Concentratie (ng/ul)')
     samples = TextAreaField(
@@ -47,7 +47,7 @@ class SubmitSampleForm(FlaskForm):
             sample_type = ''
 
             if len(data) < 3:
-                self.samples.errors.append('Regel {0} bevat geen 3 kolommen: {1}'.format(idx+1, data))
+                self.samples.errors.append('Regel {0} bevat geen 3 kolommen: {1}.'.format(idx+1, data))
                 sample_error = True
             elif len(data) == 4:
                 sample_type = data[3]
@@ -55,7 +55,7 @@ class SubmitSampleForm(FlaskForm):
             try:
                 sample = {'name': data[0], 'barcode': data[1], 'exome_count': float(data[2]), 'type': sample_type}
             except ValueError:  # only possible for exome_count
-                self.samples.errors.append('Regel {0}, kolom 3 is geen getal: {1}'.format(idx+1, data[2]))
+                self.samples.errors.append('Regel {0}, kolom 3 is geen getal: {1}.'.format(idx+1, data[2]))
                 sample_error = True
 
             # Check sample name prefix
@@ -67,10 +67,10 @@ class SubmitSampleForm(FlaskForm):
 
             # Check sample name
             if sample_name_prefix_error or '_' in sample['name']:
-                self.samples.errors.append('Regel {0}, incorrecte sample naam: {1}'.format(idx+1, sample['name']))
+                self.samples.errors.append('Regel {0}, incorrecte sample naam: {1}.'.format(idx+1, sample['name']))
                 sample_error = True
             if sample['name'] in sample_names:
-                self.samples.errors.append('Regel {0}, dubbele sample naam: {1}'.format(idx+1, sample['name']))
+                self.samples.errors.append('Regel {0}, dubbele sample naam: {1}.'.format(idx+1, sample['name']))
                 sample_error = True
             else:
                 sample_names.append(sample['name'])
@@ -78,13 +78,13 @@ class SubmitSampleForm(FlaskForm):
             # Check reagents
             reagent_types = lims.get_reagent_types(name=sample['barcode'])
             if not reagent_types:
-                self.samples.errors.append('Regel {0}, onbekende barcode: {1}'.format(idx+1, sample['barcode']))
+                self.samples.errors.append('Regel {0}, onbekende barcode: {1}.'.format(idx+1, sample['barcode']))
                 sample_error = True
             elif len(reagent_types) > 1:
-                self.samples.errors.append('Regel {0}, meerdere barcode matches in clarity lims: {1}'.format(idx+1, sample['barcode']))
+                self.samples.errors.append('Regel {0}, meerdere barcode matches in clarity lims: {1}.'.format(idx+1, sample['barcode']))
                 sample_error = True
             elif sample['barcode'] in barcodes:
-                self.samples.errors.append('Regel {0}, dubbele barcode: {1}'.format(idx+1, sample['barcode']))
+                self.samples.errors.append('Regel {0}, dubbele barcode: {1}.'.format(idx+1, sample['barcode']))
                 sample_error = True
             else:
                 sample['reagent_type'] = reagent_types[0]
