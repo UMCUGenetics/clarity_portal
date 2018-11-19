@@ -1,0 +1,3 @@
+[submodule "clarity_epp"]
+	path = clarity_epp
+	url = git@github.com:UMCUGenetics/clarity_epp.git
