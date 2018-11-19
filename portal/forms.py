@@ -41,21 +41,22 @@ class SubmitSampleForm(FlaskForm):
             return False
 
         # Parse samples data
+        sample_error = False
         for idx, line in enumerate(self.samples.data.split('\n')):
             data = line.strip().split('\t')
             sample_type = ''
 
             if len(data) < 3:
                 self.samples.errors.append('Regel {0} bevat geen 3 kolommen: {1}'.format(idx+1, data))
-                return False
+                sample_error = True
             elif len(data) == 4:
-                sample_type = data[4]  # TODO: Check sample type!
+                sample_type = data[3]
 
             try:
                 sample = {'name': data[0], 'barcode': data[1], 'exome_count': float(data[2]), 'type': sample_type}
             except ValueError:  # only possible for exome_count
                 self.samples.errors.append('Regel {0}, kolom 3 is geen getal: {1}'.format(idx+1, data[2]))
-                return False
+                sample_error = True
 
             # Check sample name prefix
             sample_name_prefixes = app.config['LIMS_INDICATIONS'][self.indicationcode.data]['sample_name_prefixes']
@@ -67,9 +68,10 @@ class SubmitSampleForm(FlaskForm):
             # Check sample name
             if sample_name_prefix_error or '_' in sample['name']:
                 self.samples.errors.append('Regel {0}, incorrecte sample naam: {1}'.format(idx+1, sample['name']))
-                return False
+                sample_error = True
             if sample['name'] in sample_names:
                 self.samples.errors.append('Regel {0}, dubbele sample naam: {1}'.format(idx+1, sample['name']))
+                sample_error = True
             else:
                 sample_names.append(sample['name'])
 
@@ -77,12 +79,13 @@ class SubmitSampleForm(FlaskForm):
             reagent_types = lims.get_reagent_types(name=sample['barcode'])
             if not reagent_types:
                 self.samples.errors.append('Regel {0}, onbekende barcode: {1}'.format(idx+1, sample['barcode']))
-                return False
+                sample_error = True
             elif len(reagent_types) > 1:
                 self.samples.errors.append('Regel {0}, meerdere barcode matches in clarity lims: {1}'.format(idx+1, sample['barcode']))
-                return False
+                sample_error = True
             elif sample['barcode'] in barcodes:
                 self.samples.errors.append('Regel {0}, dubbele barcode: {1}'.format(idx+1, sample['barcode']))
+                sample_error = True
             else:
                 sample['reagent_type'] = reagent_types[0]
                 barcodes.append(sample['barcode'])
@@ -92,6 +95,9 @@ class SubmitSampleForm(FlaskForm):
 
         if self.sum_exome_count > 51:
             self.samples.errors.append('Totaal aantal exoom equivalenten ({0}) is groter dan 51.'.format(self.sum_exome_count))
+            sample_error = True
+
+        if sample_error:
             return False
 
         return True
