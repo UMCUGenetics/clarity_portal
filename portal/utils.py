@@ -58,7 +58,7 @@ def char_to_bool(letter):
     elif letter.upper() == 'N':
         return False
     else:
-        raise ValueError('Invalid character, only J or N allowed.')
+        raise ValueError('Ongeldige letter, alleen J of N toegestaan.')
 
 
 def transform_sex(value):
@@ -71,6 +71,6 @@ def transform_sex(value):
         elif value.upper() == 'O':
             return 'Onbekend'
         else:
-            raise ValueError('Invalid sex character, only M, V or O allowed.')
+            raise ValueError('Ongeldige letter, alleen M, V of O toegestaan.')
     else:
         return value

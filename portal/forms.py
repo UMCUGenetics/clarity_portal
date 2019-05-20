@@ -185,7 +185,7 @@ class SubmitDXSampleForm(FlaskForm):
             # Check Sample typo
             valid_sample_types = ['RNA library', 'RNA unisolated', 'DNA unisolated', 'DNA isolated', 'DNA library', 'RNA total isolated']
             if sample['type'] not in valid_sample_types:
-                self.samples.errors.append('Regel {0}, onbekende sample type: {1}.'.format(idx+1, sample['type']))
+                self.samples.errors.append('Regel {0}, onbekende sample type: {1} (Kies uit: {2}).'.format(idx+1, sample['type'], ', '.join(valid_sample_types)))
 
             self.sum_exome_count += sample['exome_count']
             self.parsed_samples[sample['name']] = sample
@@ -229,21 +229,25 @@ class SubmitDXSampleForm(FlaskForm):
                 for udf in udf_column:
                     udf_column[udf]['index'] = header.index(udf_column[udf]['column'])
             else:
-                data = line.rstrip().strip('"').split('","')
+                data = line.replace('""', '"').rstrip().strip('"').split('","')
                 sample_name = data[header.index('Monsternummer')]
                 udf_data = {'Dx Import warning': ''}
                 for udf in udf_column:
                     # Transform specific udf
-                    if udf in ['Dx Overleden', 'Dx Spoed', 'Dx NICU Spoed']:
-                        udf_data[udf] = utils.char_to_bool(data[udf_column[udf]['index']])
-                    elif udf in ['Dx Geslacht', 'Dx Foetus geslacht']:
-                        udf_data[udf] = utils.transform_sex(data[udf_column[udf]['index']])
-                    elif udf == 'Dx Foetus':
-                        udf_data[udf] = bool(data[udf_column[udf]['index']].strip())
-                    elif udf == 'Dx Concentratie (ng/ul)':
-                        udf_data[udf] = data[udf_column[udf]['index']].replace(',', '.')
-                    else:
-                        udf_data[udf] = data[udf_column[udf]['index']]
+                    try:
+                        if udf in ['Dx Overleden', 'Dx Spoed', 'Dx NICU Spoed']:
+                            udf_data[udf] = utils.char_to_bool(data[udf_column[udf]['index']])
+                        elif udf in ['Dx Geslacht', 'Dx Foetus geslacht']:
+                            udf_data[udf] = utils.transform_sex(data[udf_column[udf]['index']])
+                        elif udf == 'Dx Foetus':
+                            udf_data[udf] = bool(data[udf_column[udf]['index']].strip())
+                        elif udf == 'Dx Concentratie (ng/ul)':
+                            udf_data[udf] = data[udf_column[udf]['index']].replace(',', '.')
+                        else:
+                            udf_data[udf] = data[udf_column[udf]['index']]
+                    except ValueError as e:
+                        self.helix_worklist.errors.append("Kolom '{0}' fout: {1}".format(udf_column[udf]['column'], e))
+                        return False
 
                 # Set 'Dx Handmatig' udf
                 if udf_data['Dx Foetus'] or udf_data['Dx Overleden'] or udf_data['Dx Materiaal type'] != 'BL':
