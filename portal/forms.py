@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, DecimalField
 from flask_wtf.file import FileField
 from wtforms.validators import DataRequired, AnyOf
+import re
 
 from . import lims, app
 import utils
