@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, DecimalField
 from flask_wtf.file import FileField
 from wtforms.validators import DataRequired, AnyOf
+import re
 
 from . import lims, app
 import utils
@@ -229,7 +230,7 @@ class SubmitDXSampleForm(FlaskForm):
                 for udf in udf_column:
                     udf_column[udf]['index'] = header.index(udf_column[udf]['column'])
             else:
-                data = line.rstrip().strip('"').split('","')
+                data = re.sub('"+', '"', line).rstrip().strip('"').split('","')
                 sample_name = data[header.index('Monsternummer')]
                 udf_data = {'Dx Import warning': ''}
                 for udf in udf_column:
