@@ -230,7 +230,7 @@ class SubmitDXSampleForm(FlaskForm):
                 for udf in udf_column:
                     udf_column[udf]['index'] = header.index(udf_column[udf]['column'])
             else:
-                data = line.replace('""', '"').rstrip().strip('"').split('","')
+                data = re.sub('"+(\w+)"+', '"\g<1>"', line).rstrip().strip('"').split('","')
                 sample_name = data[header.index('Monsternummer')]
                 udf_data = {'Dx Import warning': ''}
                 for udf in udf_column:
