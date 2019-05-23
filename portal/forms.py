@@ -187,6 +187,7 @@ class SubmitDXSampleForm(FlaskForm):
             valid_sample_types = ['RNA library', 'RNA unisolated', 'DNA unisolated', 'DNA isolated', 'DNA library', 'RNA total isolated']
             if sample['type'] not in valid_sample_types:
                 self.samples.errors.append('Regel {0}, onbekende sample type: {1} (Kies uit: {2}).'.format(idx+1, sample['type'], ', '.join(valid_sample_types)))
+                sample_error = True
 
             self.sum_exome_count += sample['exome_count']
             self.parsed_samples[sample['name']] = sample
@@ -230,7 +231,7 @@ class SubmitDXSampleForm(FlaskForm):
                 for udf in udf_column:
                     udf_column[udf]['index'] = header.index(udf_column[udf]['column'])
             else:
-                data = re.sub('"+(\w+)"+', '"\g<1>"', line).rstrip().strip('"').split('","')
+                data = re.sub('"+(\w+)"+', '"\g<1>"', line).strip()[1:-1].split('","')
                 sample_name = data[header.index('Monsternummer')]
                 udf_data = {'Dx Import warning': ''}
                 for udf in udf_column:
