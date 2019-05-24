@@ -30,34 +30,13 @@ def removed_samples():
 
         with open(removed_samples_file, 'r') as f:
             # Parse header
-            line_data = f.readline().rstrip().split('\t')
-            header = {
-                    'head1': line_data[0],
-                    'head2': line_data[1],
-                    'head3': line_data[2],
-                    'head4': line_data[3],
-                    'head5': line_data[4],
-                    'head6': line_data[5],
-                    'head7': line_data[6],
-                    'head8': line_data[7]
-                }
+            header = f.readline().rstrip().split('\t')
 
             # Parse samples
             samples = []
             for line in f:
-                line_data = line.rstrip().split('\t')
-                samples.append(
-                    {
-                        'col1': line_data[0],
-                        'col2': line_data[1],
-                        'col3': line_data[2],
-                        'col4': line_data[3],
-                        'col5': line_data[4],
-                        'col6': line_data[5],
-                        'col7': line_data[6],
-                        'col8': line_data[7]
-                    }
-                )
+                sample_data = line.rstrip().split('\t')
+                samples.append(sample_data)
         return render_template('removed_samples.html', title='Verwijderde samples', header=header, samples=samples, date=date, time=time)
     else:
         return render_template('no_file.html', title='Verwijderde samples')

@@ -10,27 +10,17 @@
         <table class="table table-fixed table-striped table-hover table-responsive">
             <thead>
                 <tr>
-                    <th>{{ header.head1 }}</th>
-                    <th>{{ header.head2 }}</th>
-                    <th>{{ header.head3 }}</th>
-                    <th>{{ header.head4 }}</th>
-                    <th>{{ header.head5 }}</th>
-                    <th>{{ header.head6 }}</th>
-                    <th>{{ header.head7 }}</th>
-                    <th>{{ header.head8 }}</th>
+                    {% for item in header %}
+                    <th>{{ item }}</th>
+                    {% endfor %}
                 </tr>
             </thead>
             <tbody>
-                {% for s in samples %}
+                {% for sample in samples %}
                 <tr>
-                    <td>{{ s.col1 }}</td>
-                    <td>{{ s.col2 }}</td>
-                    <td>{{ s.col3 }}</td>
-                    <td>{{ s.col4 }}</td>
-                    <td>{{ s.col5 }}</td>
-                    <td>{{ s.col6 }}</td>
-                    <td>{{ s.col7 }}</td>
-                    <td>{{ s.col8 }}</td>
+                    {% for item in sample %}
+                    <td>{{ item }}</td>
+                    {% endfor %}
                 </tr>
                 {% endfor %}
             </tbody>
