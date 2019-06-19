@@ -2,28 +2,29 @@
 
 {% block app_content %}
     <h1 class="page-header">{{ title }}</h1>
-    <div>De samples in onderstaande lijst zijn samples die de laatste 6 maanden verwijderd zijn uit een stap in Clarty LIMS en niet opnieuw zijn opgepakt.</div>
-    <div>Lijst is gegenereerd door een script op {{ date }} om {{ time }}</div>
-    <div>Hierdoor kunnen er samples in de lijst staan die al opnieuw zijn opgepakt, deze zullen de volgende dag uit de lijst verdwijnen (mits deze minimaal 1 dag later zijn opgepakt dan de datum van verwijdering).</div>
-    <div>Bij problemen en vragen neem contact op met de Clarity administrators via dlabclarity@umcutrecht.nl</div>
-    <div>
-        <table class="table table-fixed table-striped table-hover table-responsive">
-            <thead>
-                <tr>
-                    {% for item in header %}
-                    <th>{{ item }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for sample in samples %}
-                <tr>
-                    {% for item in sample %}
-                    <td>{{ item }}</td>
-                    {% endfor %}
-                </tr>
+
+    <table class="table table-bordered table-hover table-condensed">
+        <thead>
+            <tr>
+                {% for item in header %}
+                <th>{{ item }}</th>
                 {% endfor %}
-            </tbody>
-        </table>
-    </div>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sample in samples %}
+            <tr>
+                {% for item in sample %}
+                <td>{{ item }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+<div class="jumbotron">
+    De samples in bovenstaande lijst zijn samples die de laatste 6 maanden verwijderd zijn uit een stap in Clarty LIMS en niet opnieuw zijn opgepakt.<br>
+    De lijst is gegenereerd door een script op {{ date }} om {{ time }}. Hierdoor kunnen er samples in de lijst staan die al opnieuw zijn opgepakt, deze zullen de volgende dag uit de lijst verdwijnen (mits deze minimaal 1 dag later zijn opgepakt dan de datum van verwijdering).<br>
+    Bij problemen en vragen neem contact op met de Clarity administrators via <a href="mailto:dlabclarity@umcutrecht.nl">dlabclarity@umcutrecht.nl</a>.<br>
+</div>
 {% endblock %}
