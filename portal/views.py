@@ -133,6 +133,8 @@ def submit_dx_samples():
             # Set sample udf data
             udf_data = form.parsed_worklist[sample_name]
             udf_data['Sample Type'] = form.parsed_samples[sample_name]['type']
+            udf_data['Dx Fragmentlengte (bp) Externe meting'] = form.pool_fragment_length.data
+            udf_data['Dx Conc. (ng/ul) Externe meting'] = form.pool_concentration.data
 
             # Create sample
             container = Container.create(lims, type=container_type, name=udf_data['Dx Fractienummer'])
