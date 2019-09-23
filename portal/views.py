@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 from genologics.entities import Sample, Project, Containertype, Container, Workflow
 
 from . import app, lims
-from .forms import SubmitSampleForm
+from .forms import SubmitSampleForm, SubmitDXSampleForm
 from .utils import send_email
 
 
@@ -30,34 +30,13 @@ def removed_samples():
 
         with open(removed_samples_file, 'r') as f:
             # Parse header
-            line_data = f.readline().rstrip().split('\t')
-            header = {
-                    'head1': line_data[0],
-                    'head2': line_data[1],
-                    'head3': line_data[2],
-                    'head4': line_data[3],
-                    'head5': line_data[4],
-                    'head6': line_data[5],
-                    'head7': line_data[6],
-                    'head8': line_data[7]
-                }
+            header = f.readline().rstrip().split('\t')
 
             # Parse samples
             samples = []
             for line in f:
-                line_data = line.rstrip().split('\t')
-                samples.append(
-                    {
-                        'col1': line_data[0],
-                        'col2': line_data[1],
-                        'col3': line_data[2],
-                        'col4': line_data[3],
-                        'col5': line_data[4],
-                        'col6': line_data[5],
-                        'col7': line_data[6],
-                        'col8': line_data[7]
-                    }
-                )
+                sample_data = line.rstrip().split('\t')
+                samples.append(sample_data)
         return render_template('removed_samples.html', title='Verwijderde samples', header=header, samples=samples, date=date, time=time)
     else:
         return render_template('no_file.html', title='Verwijderde samples')
@@ -133,3 +112,48 @@ def submit_samples():
 
         return render_template('submit_samples_done.html', title='Submit samples', project_name=lims_project.name, form=form)
     return render_template('submit_samples.html', title='Submit samples', form=form)
+
+
+@app.route('/submit_dx_samples', methods=['GET', 'POST'])
+def submit_dx_samples():
+    form = SubmitDXSampleForm()
+
+    if form.validate_on_submit():
+        container_type = Containertype(lims, id='2')  # Tube
+        workflow = Workflow(lims, id=app.config['LIMS_DX_SAMPLE_SUBMIT_WORKFLOW'])
+
+        for sample_name in form.parsed_samples:
+            # Get or create project
+            lims_projects = lims.get_projects(name=form.parsed_samples[sample_name]['project'])
+            if not lims_projects:
+                lims_project = Project.create(lims, name=form.parsed_samples[sample_name]['project'], researcher=form.researcher, udf={'Application': 'DX'})
+            else:
+                lims_project = lims_projects[0]
+
+            # Set sample udf data
+            udf_data = form.parsed_worklist[sample_name]
+            udf_data['Sample Type'] = form.parsed_samples[sample_name]['type']
+            udf_data['Dx Fragmentlengte (bp) Externe meting'] = form.pool_fragment_length.data
+            udf_data['Dx Conc. (ng/ul) Externe meting'] = form.pool_concentration.data
+            udf_data['Dx Exoomequivalent'] = form.parsed_samples[sample_name]['exome_count']
+
+            # Create sample
+            container = Container.create(lims, type=container_type, name=udf_data['Dx Fractienummer'])
+            sample = Sample.create(lims, container=container, position='1:1', project=lims_project, name=sample_name, udf=udf_data)
+            print sample.name, sample.artifact.name
+
+            # Add reagent label (barcode)
+            artifact = sample.artifact
+            artifact_xml_dom = minidom.parseString(artifact.xml())
+
+            for artifact_name_node in artifact_xml_dom.getElementsByTagName('name'):
+                parent = artifact_name_node.parentNode
+                reagent_label = artifact_xml_dom.createElement('reagent-label')
+                reagent_label.setAttribute('name', form.parsed_samples[sample_name]['barcode'])
+                parent.appendChild(reagent_label)
+                lims.put(artifact.uri, artifact_xml_dom.toxml(encoding='utf-8'))
+
+            lims.route_artifacts([sample.artifact], workflow_uri=workflow.uri)
+
+        return render_template('submit_dx_samples_done.html', title='Submit DX samples', project_name=lims_project.name, form=form)
+    return render_template('submit_dx_samples.html', title='Submit DX samples', form=form)

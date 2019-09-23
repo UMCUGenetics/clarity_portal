@@ -49,3 +49,28 @@ def send_email(sender, receivers, subject, text, attachment=None):
     s = SMTP('smtp-open.umcutrecht.nl')
     s.sendmail(sender, receivers, mail.as_string())
     s.quit()
+
+
+def char_to_bool(letter):
+    """Transform character (J/N) to Bool."""
+    if letter.upper() == 'J':
+        return True
+    elif letter.upper() == 'N':
+        return False
+    else:
+        raise ValueError('Ongeldige letter, alleen J of N toegestaan.')
+
+
+def transform_sex(value):
+    """Transform helix sex/geslacht value to lims sex/geslacht value."""
+    if value.strip():
+        if value.upper() == 'M':
+            return 'Man'
+        elif value.upper() == 'V':
+            return 'Vrouw'
+        elif value.upper() == 'O':
+            return 'Onbekend'
+        else:
+            raise ValueError('Ongeldige letter, alleen M, V of O toegestaan.')
+    else:
+        return value

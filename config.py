@@ -22,6 +22,8 @@ LIMS_INDICATIONS = {
     }
 }
 
+LIMS_DX_SAMPLE_SUBMIT_WORKFLOW = '701'  # Dx Sequence facility v1.1
+
 # Genologics
 BASEURI = 'change_this'
 USERNAME = 'change_this'

@@ -30,10 +30,25 @@
 {% endmacro %}
 
 {% macro render_file_field(field) %}
+{% if field.errors %}
+<div class="form-group has-error {% if field.flags.required %}required{% endif %}">
+    {{ field.label(class_='col-sm-3 control-label') }}
+    <div class="col-sm-9">
+        {{ field(**kwargs) }}
+        <h5 class="text-danger">Werklijst fouten:</h5>
+        <ul>
+        {% for error in field.errors %}
+            <li class="text-danger">{{error}}</li>
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+{% else %}
 <div class="form-group {% if field.flags.required %}required{% endif %}">
     {{ field.label(class_='col-sm-3 control-label') }}
     <div class="col-sm-9">
         {{ field(**kwargs) }}
     </div>
 </div>
+{% endif %}
 {% endmacro %}
