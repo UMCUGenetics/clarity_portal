@@ -252,7 +252,7 @@ class SubmitDXSampleForm(FlaskForm):
                         return False
 
                 # Set 'Dx Handmatig' udf
-                if udf_data['Dx Foetus'] or udf_data['Dx Overleden'] or udf_data['Dx Materiaal type'] != 'BL':
+                if udf_data['Dx Foetus'] or udf_data['Dx Overleden'] or udf_data['Dx Materiaal type'] not in ['BL', 'BLHEP', 'BM', 'BMEDTA']:
                     udf_data['Dx Handmatig'] = True
                 else:
                     udf_data['Dx Handmatig'] = False
