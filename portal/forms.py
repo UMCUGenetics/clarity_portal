@@ -184,7 +184,7 @@ class SubmitDXSampleForm(FlaskForm):
                 barcodes.append(sample['barcode'])
 
             # Check Sample typo
-            valid_sample_types = ['RNA library', 'RNA unisolated', 'DNA unisolated', 'DNA isolated', 'DNA library', 'RNA total isolated']
+            valid_sample_types = ['RNA library', 'DNA library']
             if sample['type'] not in valid_sample_types:
                 self.samples.errors.append('Regel {0}, onbekende sample type: {1} (Kies uit: {2}).'.format(idx+1, sample['type'], ', '.join(valid_sample_types)))
                 sample_error = True
