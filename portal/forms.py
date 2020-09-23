@@ -95,10 +95,6 @@ class SubmitSampleForm(FlaskForm):
             self.sum_exome_count += sample['exome_count']
             self.parsed_samples.append(sample)
 
-        if self.sum_exome_count > 51:
-            self.samples.errors.append('Totaal aantal exoom equivalenten ({0}) is groter dan 51.'.format(self.sum_exome_count))
-            sample_error = True
-
         if sample_error:
             return False
 
@@ -191,11 +187,6 @@ class SubmitDXSampleForm(FlaskForm):
 
             self.sum_exome_count += sample['exome_count']
             self.parsed_samples[sample['name']] = sample
-
-        # Check Exome count
-        if self.sum_exome_count > 51:
-            self.samples.errors.append('Totaal aantal exoom equivalenten ({0}) is groter dan 51.'.format(self.sum_exome_count))
-            sample_error = True
 
         # Parse helix_worklist
         header = []
