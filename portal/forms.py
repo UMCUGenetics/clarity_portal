@@ -58,7 +58,7 @@ class SubmitSampleForm(FlaskForm):
                 sample = {'name': data[0], 'barcode': data[1], 'exome_count': float(data[2]), 'type': sample_type}
             except ValueError:  # only possible for exome_count
                 self.samples.errors.append('Regel {0}, kolom 3 is geen getal: {1}.'.format(idx+1, data[2]))
-                sample_error = True
+                return False
 
             # Check sample name prefix
             sample_name_prefixes = app.config['LIMS_INDICATIONS'][self.indicationcode.data]['sample_name_prefixes']
