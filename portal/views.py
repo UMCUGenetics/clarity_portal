@@ -63,7 +63,7 @@ def submit_samples():
             temp_dir = mkdtemp()
             attachment_path = path.join(temp_dir, secure_filename(attachment.filename))
             attachment.save(attachment_path)
-            print attachment_path
+            print(attachment_path)
             lims.upload_new_file(lims_project, attachment_path)
             rmtree(temp_dir)
 
@@ -79,7 +79,7 @@ def submit_samples():
                 'Dx Exoomequivalent': sample['exome_count'],
             }
             lims_sample = Sample.create(lims, container=lims_container, position='1:1', project=lims_project, name=sample['name'], udf=sample_udf_data)
-            print lims_sample.name, lims_sample.artifact.name
+            print(lims_sample.name, lims_sample.artifact.name)
             artifact = lims_sample.artifact
             sample_artifacts.append(artifact)
 
@@ -140,7 +140,7 @@ def submit_dx_samples():
             # Create sample
             container = Container.create(lims, type=container_type, name=udf_data['Dx Fractienummer'])
             sample = Sample.create(lims, container=container, position='1:1', project=lims_project, name=sample_name, udf=udf_data)
-            print sample.name, sample.artifact.name
+            print(sample.name, sample.artifact.name)
 
             # Add reagent label (barcode)
             artifact = sample.artifact

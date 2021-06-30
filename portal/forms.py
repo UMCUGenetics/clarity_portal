@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired, AnyOf
 import re
 
 from . import lims, app
-import utils
+from . import utils
 
 
 class SubmitSampleForm(FlaskForm):
