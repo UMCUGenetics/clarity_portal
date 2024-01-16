@@ -108,7 +108,21 @@ class SubmitSampleForm(FlaskForm):
                 barcodes.append(sample['barcode'])
 
             # Check override_cycles
-            # TODO: Add check for override_cycles, based on default index / read lengths?
+            if ';' not in sample['override_cycles']:
+                self.samples.errors.append('Regel {0}, override_cycles moet gescheiden zijn door ;.'.format(idx+1))
+                sample_error = True
+            else:
+                override_cycles = sample['override_cycles'].split(';')
+                for cycle, cycle_idx in enumerate(override_cycles):
+                    cycle_len = sum(map(int, re.findall('\d+', cycle)))
+                    if cycle_len != app.config['OVERRIDE_CYCLES_LEN'][cycle_idx]:
+                        self.samples.errors.append(
+                            'Regel {0}, override_cycle {1} heeft een incorrecte totale lengte {2} in plaats van {3}.'.format(
+                                idx, cycle, cycle_len, app.config['OVERRIDE_CYCLES_LEN'][cycle_idx]
+                            )
+                        )
+                        sample_error = True
+
             self.sum_exome_count += sample['exome_count']
             self.parsed_samples.append(sample)
 

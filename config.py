@@ -3,7 +3,10 @@
 # Website
 SECRET_KEY = 'change_this'
 REMOVED_SAMPLES_FILE = 'path/to/removed_samples.txt'
+
 SAMPLE_NAME_FORBIDDEN = [' ', '_', ',', '+']  # Forbidden characters in sample name
+OVERRIDE_CYCLES_LEN = [151, 19, 10, 151]
+
 LIMS_INDICATIONS = {
     'PD-PMC001': {
         'project_name_prefix': 'PMC_DX_WES',
@@ -73,7 +76,6 @@ LIMS_INDICATIONS = {
     },
 
 }
-
 LIMS_DX_SAMPLE_SUBMIT_WORKFLOW = '1252'  # Dx Sequence facility v1.6
 
 # Genologics
