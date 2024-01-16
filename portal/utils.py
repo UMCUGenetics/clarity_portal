@@ -74,3 +74,8 @@ def transform_sex(value):
             raise ValueError('Ongeldige letter, alleen M, V of O toegestaan.')
     else:
         return value
+
+
+def substrings_in_list(substrings, string):
+    """Check if substrings are in string."""
+    return any(substring in string for substring in substrings)

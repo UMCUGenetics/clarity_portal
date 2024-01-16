@@ -80,7 +80,8 @@ class SubmitSampleForm(FlaskForm):
                     sample_name_prefix_error = False
 
             # Check sample name
-            if sample_name_prefix_error or '_' in sample['name']:
+            sample_name_error = utils.substrings_in_list(app.config['SAMPLE_NAME_FORBIDDEN'], sample['name'])
+            if sample_name_prefix_error or sample_name_error:
                 self.samples.errors.append('Regel {0}, incorrecte sample naam: {1}.'.format(idx+1, sample['name']))
                 sample_error = True
             if sample['name'] in sample_names:
@@ -180,7 +181,8 @@ class SubmitDXSampleForm(FlaskForm):
                 sample_error = True
 
             # Check sample name
-            if '_' in sample['name']:
+            sample_name_error = utils.substrings_in_list(app.config['SAMPLE_NAME_FORBIDDEN'], sample['name'])
+            if sample_name_error:
                 self.samples.errors.append('Regel {0}, incorrecte sample naam: {1}.'.format(idx+1, sample['name']))
                 sample_error = True
             if sample['name'] in sample_names:

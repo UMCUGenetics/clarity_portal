@@ -3,6 +3,7 @@
 # Website
 SECRET_KEY = 'change_this'
 REMOVED_SAMPLES_FILE = 'path/to/removed_samples.txt'
+SAMPLE_NAME_FORBIDDEN = [' ', '_', ',', '+']  # Forbidden characters in sample name
 LIMS_INDICATIONS = {
     'PD-PMC001': {
         'project_name_prefix': 'PMC_DX',
