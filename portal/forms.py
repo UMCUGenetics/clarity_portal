@@ -56,7 +56,7 @@ class SubmitSampleForm(FlaskForm):
 
             if len(data) < 4:
                 self.samples.errors.append('Regel {0} bevat geen 4 kolommen: {1}.'.format(idx+1, data))
-                sample_error = True
+                return False  # Stop parsing sample data, because we can't continue without 4 columns.
             elif len(data) == 5:
                 sample_type = data[4]
 
