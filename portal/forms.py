@@ -113,8 +113,8 @@ class SubmitSampleForm(FlaskForm):
                 sample_error = True
             else:
                 override_cycles = sample['override_cycles'].split(';')
-                for cycle, cycle_idx in enumerate(override_cycles):
-                    cycle_len = sum(map(int, re.findall('\d+', cycle)))
+                for cycle_idx, cycle in enumerate(override_cycles):
+                    cycle_len = sum(map(int, re.findall(r'\d+', cycle)))
                     if cycle_len != app.config['OVERRIDE_CYCLES_LEN'][cycle_idx]:
                         self.samples.errors.append(
                             'Regel {0}, override_cycle {1} heeft een incorrecte totale lengte {2} in plaats van {3}.'.format(
