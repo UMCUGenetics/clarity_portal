@@ -22,7 +22,7 @@ LIMS_INDICATIONS = {
     },
     'RNA_seq': {
         'project_name_prefix': 'DX_RNASeq',
-        'sample_name_prefixes': ['U','2'],
+        'sample_name_prefixes': ['U', '2'],
         'workflow_id': '1252',  # Dx Sequence facility v1.6
         'email_to': [],
     },
@@ -47,7 +47,7 @@ LIMS_INDICATIONS = {
     'WGS_titr': {
         'project_name_prefix': 'DX_WGS_titr',
         'sample_name_prefixes': [''],
-        'workflow_id': '1252', # Dx Sequence facility v1.6
+        'workflow_id': '1252',  # Dx Sequence facility v1.6
         'email_to': [],
     },
     'DxVal': {
