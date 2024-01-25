@@ -116,16 +116,16 @@ class SubmitSampleForm(FlaskForm):
                 if len(override_cycles) != 4:
                     self.samples.errors.append('Regel {0}, override_cycles moet 4 cycli bevatten.'.format(idx+1))
                     sample_error = True
-
-                for cycle_idx, cycle in enumerate(override_cycles):
-                    cycle_len = sum(map(int, re.findall(r'\d+', cycle)))
-                    if cycle_len != app.config['OVERRIDE_CYCLES_LEN'][cycle_idx]:
-                        self.samples.errors.append(
-                            'Regel {0}, override_cycle {1} heeft een incorrecte totale lengte {2} in plaats van {3}.'.format(
-                                idx+1, cycle, cycle_len, app.config['OVERRIDE_CYCLES_LEN'][cycle_idx]
+                else:
+                    for cycle_idx, cycle in enumerate(override_cycles):
+                        cycle_len = sum(map(int, re.findall(r'\d+', cycle)))
+                        if cycle_len != app.config['OVERRIDE_CYCLES_LEN'][cycle_idx]:
+                            self.samples.errors.append(
+                                'Regel {0}, override_cycle {1} heeft een incorrecte lengte {2} in plaats van {3}.'.format(
+                                    idx+1, cycle, cycle_len, app.config['OVERRIDE_CYCLES_LEN'][cycle_idx]
+                                )
                             )
-                        )
-                        sample_error = True
+                            sample_error = True
 
             self.sum_exome_count += sample['exome_count']
             self.parsed_samples.append(sample)
