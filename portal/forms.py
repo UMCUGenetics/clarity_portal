@@ -4,8 +4,7 @@ from flask_wtf.file import FileField
 from wtforms.validators import DataRequired, AnyOf
 import re
 
-from . import lims, app
-from . import utils
+from . import lims, app, utils
 
 
 class SubmitSampleForm(FlaskForm):
