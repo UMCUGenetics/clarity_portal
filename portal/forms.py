@@ -4,18 +4,23 @@ from flask_wtf.file import FileField
 from wtforms.validators import DataRequired, AnyOf
 import re
 
-from . import lims, app
-import utils
+from . import lims, app, utils
 
 
 class SubmitSampleForm(FlaskForm):
     username = StringField('Gebruikersnaam', validators=[DataRequired()])
-    indicationcode = StringField('Indicatie code', validators=[DataRequired(), AnyOf(app.config['LIMS_INDICATIONS'].keys(), message='Foute indicatie code.')])
+    indicationcode = StringField(
+        'Indicatie code',
+        validators=[DataRequired(), AnyOf(app.config['LIMS_INDICATIONS'].keys(), message='Foute indicatie code.')]
+    )
     pool_fragment_length = DecimalField('Pool - Fragment lengte (bp)')
     pool_concentration = DecimalField('Pool - Concentratie (ng/ul)')
     samples = TextAreaField(
         'Samples',
-        description="Een regel per sample en kolommen gescheiden door tabs. Kolom volgorde: Sample naam, Barcode, Exoom equivalenten, Sample type.",
+        description=(
+            "Een regel per sample en kolommen gescheiden door tabs."
+            "Kolom volgorde: Sample naam, Barcode, Override Cycles, Exoom equivalenten, Sample type."
+        ),
         validators=[DataRequired()]
     )
     attachment = FileField()
@@ -48,16 +53,22 @@ class SubmitSampleForm(FlaskForm):
             data = line.strip().split('\t')
             sample_type = ''
 
-            if len(data) < 3:
-                self.samples.errors.append('Regel {0} bevat geen 3 kolommen: {1}.'.format(idx+1, data))
-                sample_error = True
-            elif len(data) == 4:
-                sample_type = data[3]
+            if len(data) < 4:
+                self.samples.errors.append('Regel {0} bevat geen 4 kolommen: {1}.'.format(idx+1, data))
+                return False  # Stop parsing sample data, because we can't continue without 4 columns.
+            elif len(data) == 5:
+                sample_type = data[4]
 
             try:
-                sample = {'name': data[0], 'barcode': data[1], 'exome_count': float(data[2]), 'type': sample_type}
+                sample = {
+                    'name': data[0],
+                    'barcode': data[1],
+                    'override_cycles': data[2],
+                    'exome_count': float(data[3]),
+                    'type': sample_type
+                }
             except ValueError:  # only possible for exome_count
-                self.samples.errors.append('Regel {0}, kolom 3 is geen getal: {1}.'.format(idx+1, data[2]))
+                self.samples.errors.append('Regel {0}, kolom 4 is geen getal: {1}.'.format(idx+1, data[2]))
                 return False
 
             # Check sample name prefix
@@ -68,7 +79,8 @@ class SubmitSampleForm(FlaskForm):
                     sample_name_prefix_error = False
 
             # Check sample name
-            if sample_name_prefix_error or '_' in sample['name']:
+            sample_name_error = utils.substrings_in_list(app.config['SAMPLE_NAME_FORBIDDEN'], sample['name'])
+            if sample_name_prefix_error or sample_name_error:
                 self.samples.errors.append('Regel {0}, incorrecte sample naam: {1}.'.format(idx+1, sample['name']))
                 sample_error = True
             if sample['name'] in sample_names:
@@ -83,7 +95,9 @@ class SubmitSampleForm(FlaskForm):
                 self.samples.errors.append('Regel {0}, onbekende barcode: {1}.'.format(idx+1, sample['barcode']))
                 sample_error = True
             elif len(reagent_types) > 1:
-                self.samples.errors.append('Regel {0}, meerdere barcode matches in clarity lims: {1}.'.format(idx+1, sample['barcode']))
+                self.samples.errors.append('Regel {0}, meerdere barcode matches in clarity lims: {1}.'.format(
+                    idx+1, sample['barcode'])
+                )
                 sample_error = True
             elif sample['barcode'] in barcodes:
                 self.samples.errors.append('Regel {0}, dubbele barcode: {1}.'.format(idx+1, sample['barcode']))
@@ -91,6 +105,26 @@ class SubmitSampleForm(FlaskForm):
             else:
                 sample['reagent_type'] = reagent_types[0]
                 barcodes.append(sample['barcode'])
+
+            # Check override_cycles
+            if ';' not in sample['override_cycles']:
+                self.samples.errors.append('Regel {0}, override_cycles moet gescheiden zijn door ;.'.format(idx+1))
+                sample_error = True
+            else:
+                override_cycles = sample['override_cycles'].split(';')
+                if len(override_cycles) != 4:
+                    self.samples.errors.append('Regel {0}, override_cycles moet 4 cycli bevatten.'.format(idx+1))
+                    sample_error = True
+                else:
+                    for cycle_idx, cycle in enumerate(override_cycles):
+                        cycle_len = sum(map(int, re.findall(r'\d+', cycle)))
+                        if cycle_len != app.config['OVERRIDE_CYCLES_LEN'][cycle_idx]:
+                            self.samples.errors.append(
+                                'Regel {0}, override_cycle {1} heeft een incorrecte lengte {2} in plaats van {3}.'.format(
+                                    idx+1, cycle, cycle_len, app.config['OVERRIDE_CYCLES_LEN'][cycle_idx]
+                                )
+                            )
+                            sample_error = True
 
             self.sum_exome_count += sample['exome_count']
             self.parsed_samples.append(sample)
@@ -107,7 +141,10 @@ class SubmitDXSampleForm(FlaskForm):
     pool_concentration = DecimalField('Pool - Concentratie (ng/ul)', validators=[DataRequired()])
     samples = TextAreaField(
         'Samples',
-        description="Een regel per sample en kolommen gescheiden door tabs. Kolom volgorde: Sample naam, Barcode, Exoom equivalenten, Sample type, Project naam.",
+        description=(
+            "Een regel per sample en kolommen gescheiden door tabs."
+            "Kolom volgorde: Sample naam, Barcode, Exoom equivalenten, Sample type, Project naam."
+        ),
         validators=[DataRequired()]
     )
     helix_worklist = FileField('Helix Werklijst', validators=[DataRequired()])
@@ -149,13 +186,20 @@ class SubmitDXSampleForm(FlaskForm):
             sample_project = data[4]
 
             try:
-                sample = {'name': data[0], 'barcode': data[1], 'exome_count': float(data[2]), 'type': sample_type, 'project': sample_project}
+                sample = {
+                    'name': data[0],
+                    'barcode': data[1],
+                    'exome_count': float(data[2]),
+                    'type': sample_type,
+                    'project': sample_project
+                }
             except ValueError:  # only possible for exome_count
                 self.samples.errors.append('Regel {0}, kolom 3 is geen getal: {1}.'.format(idx+1, data[2]))
                 sample_error = True
 
             # Check sample name
-            if '_' in sample['name']:
+            sample_name_error = utils.substrings_in_list(app.config['SAMPLE_NAME_FORBIDDEN'], sample['name'])
+            if sample_name_error:
                 self.samples.errors.append('Regel {0}, incorrecte sample naam: {1}.'.format(idx+1, sample['name']))
                 sample_error = True
             if sample['name'] in sample_names:
@@ -170,7 +214,9 @@ class SubmitDXSampleForm(FlaskForm):
                 self.samples.errors.append('Regel {0}, onbekende barcode: {1}.'.format(idx+1, sample['barcode']))
                 sample_error = True
             elif len(reagent_types) > 1:
-                self.samples.errors.append('Regel {0}, meerdere barcode matches in clarity lims: {1}.'.format(idx+1, sample['barcode']))
+                self.samples.errors.append('Regel {0}, meerdere barcode matches in clarity lims: {1}.'.format(
+                    idx+1, sample['barcode'])
+                )
                 sample_error = True
             elif sample['barcode'] in barcodes:
                 self.samples.errors.append('Regel {0}, dubbele barcode: {1}.'.format(idx+1, sample['barcode']))
@@ -182,7 +228,9 @@ class SubmitDXSampleForm(FlaskForm):
             # Check Sample typo
             valid_sample_types = ['RNA library', 'DNA library']
             if sample['type'] not in valid_sample_types:
-                self.samples.errors.append('Regel {0}, onbekende sample type: {1} (Kies uit: {2}).'.format(idx+1, sample['type'], ', '.join(valid_sample_types)))
+                self.samples.errors.append('Regel {0}, onbekende sample type: {1} (Kies uit: {2}).'.format(
+                    idx+1, sample['type'], ', '.join(valid_sample_types))
+                )
                 sample_error = True
 
             self.sum_exome_count += sample['exome_count']
@@ -222,7 +270,7 @@ class SubmitDXSampleForm(FlaskForm):
                 for udf in udf_column:
                     udf_column[udf]['index'] = header.index(udf_column[udf]['column'])
             else:
-                data = re.sub('"+(\w+)"+', '"\g<1>"', line).strip()[1:-1].split('","')
+                data = re.sub(r'"+(\w+)"+', r'"\g<1>"', line).strip()[1:-1].split('","')
                 sample_name = data[header.index('Monsternummer')]
                 udf_data = {'Dx Import warning': ''}
                 for udf in udf_column:
@@ -243,7 +291,11 @@ class SubmitDXSampleForm(FlaskForm):
                         return False
 
                 # Set 'Dx Handmatig' udf
-                if udf_data['Dx Foetus'] or udf_data['Dx Overleden'] or udf_data['Dx Materiaal type'] not in ['BL', 'BLHEP', 'BM', 'BMEDTA']:
+                if (
+                    udf_data['Dx Foetus'] or
+                    udf_data['Dx Overleden'] or
+                    udf_data['Dx Materiaal type'] not in ['BL', 'BLHEP', 'BM', 'BMEDTA']
+                ):
                     udf_data['Dx Handmatig'] = True
                 else:
                     udf_data['Dx Handmatig'] = False
@@ -256,7 +308,9 @@ class SubmitDXSampleForm(FlaskForm):
                 elif udf_data['Dx Onderzoeksreden'] == 'Informativiteitstest':
                     udf_data['Dx Familie status'] = 'Ouder'
                 else:
-                    udf_data['Dx Import warning'] = ';'.join(['Onbekende onderzoeksreden, familie status niet ingevuld.', udf_data['Dx Import warning']])
+                    udf_data['Dx Import warning'] = ';'.join(
+                        ['Onbekende onderzoeksreden, familie status niet ingevuld.', udf_data['Dx Import warning']]
+                    )
 
                 # Set 'Dx Geslacht' and 'Dx Geboortejaar' with 'Foetus' information if 'Dx Foetus == True'
                 if udf_data['Dx Foetus']:
