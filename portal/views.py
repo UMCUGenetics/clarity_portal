@@ -2,7 +2,6 @@ from os import path
 from tempfile import mkdtemp
 from shutil import rmtree
 from time import gmtime, strftime
-from datetime import date
 from xml.dom import minidom
 
 from flask import render_template, url_for, redirect
@@ -37,7 +36,14 @@ def removed_samples():
             for line in f:
                 sample_data = line.rstrip().split('\t')
                 samples.append(sample_data)
-        return render_template('removed_samples.html', title='Verwijderde samples', header=header, samples=samples, date=date, time=time)
+        return render_template(
+            'removed_samples.html',
+            title='Verwijderde samples',
+            header=header,
+            samples=samples,
+            date=date,
+            time=time
+        )
     else:
         return render_template('no_file.html', title='Verwijderde samples')
 
@@ -63,7 +69,7 @@ def submit_samples():
             temp_dir = mkdtemp()
             attachment_path = path.join(temp_dir, secure_filename(attachment.filename))
             attachment.save(attachment_path)
-            print attachment_path
+            print(attachment_path)
             lims.upload_new_file(lims_project, attachment_path)
             rmtree(temp_dir)
 
@@ -76,10 +82,18 @@ def submit_samples():
                 'Sample Type': 'DNA library',
                 'Dx Fragmentlengte (bp) Externe meting': form.pool_fragment_length.data,
                 'Dx Conc. (ng/ul) Externe meting': form.pool_concentration.data,
+                'Dx Override Cycles': sample['override_cycles'],
                 'Dx Exoomequivalent': sample['exome_count'],
             }
-            lims_sample = Sample.create(lims, container=lims_container, position='1:1', project=lims_project, name=sample['name'], udf=sample_udf_data)
-            print lims_sample.name, lims_sample.artifact.name
+            lims_sample = Sample.create(
+                lims,
+                container=lims_container,
+                position='1:1',
+                project=lims_project,
+                name=sample['name'],
+                udf=sample_udf_data
+            )
+            print(lims_sample.name, lims_sample.artifact.name)
             artifact = lims_sample.artifact
             sample_artifacts.append(artifact)
 
@@ -104,11 +118,22 @@ def submit_samples():
         message += "Pool - Fragment lengte\t{0}\n".format(form.pool_fragment_length.data)
         message += "Pool - Concentratie\t{0}\n".format(form.pool_concentration.data)
         message += "Pool - Exoom equivalenten\t{0}\n\n".format(form.sum_exome_count)
-        message += "Sample naam\tBarcode\tExome equivalenten\tSample type\n"
+        message += "Sample naam\tBarcode\tOverride Cycles\tExome equivalenten\tSample type\n"
 
         for sample in form.parsed_samples:
-            message += "{0}\t{1}\t{2}\t{3}\n".format(sample['name'], sample['barcode'], sample['exome_count'], sample['type'])
-        send_email(app.config['EMAIL_FROM'], app.config['LIMS_INDICATIONS'][form.indicationcode.data]['email_to'], subject, message)
+            message += "{0}\t{1}\t{2}\t{3}\t{4}\n".format(
+                sample['name'],
+                sample['barcode'],
+                sample['override_cycles'],
+                sample['exome_count'],
+                sample['type']
+            )
+        send_email(
+            app.config['EMAIL_FROM'],
+            app.config['LIMS_INDICATIONS'][form.indicationcode.data]['email_to'],
+            subject,
+            message
+        )
 
         return render_template('submit_samples_done.html', title='Submit samples', project_name=lims_project.name, form=form)
     return render_template('submit_samples.html', title='Submit samples', form=form)
@@ -126,7 +151,12 @@ def submit_dx_samples():
             # Get or create project
             lims_projects = lims.get_projects(name=form.parsed_samples[sample_name]['project'])
             if not lims_projects:
-                lims_project = Project.create(lims, name=form.parsed_samples[sample_name]['project'], researcher=form.researcher, udf={'Application': 'DX'})
+                lims_project = Project.create(
+                    lims,
+                    name=form.parsed_samples[sample_name]['project'],
+                    researcher=form.researcher,
+                    udf={'Application': 'DX'}
+                )
             else:
                 lims_project = lims_projects[0]
 
@@ -139,8 +169,15 @@ def submit_dx_samples():
 
             # Create sample
             container = Container.create(lims, type=container_type, name=udf_data['Dx Fractienummer'])
-            sample = Sample.create(lims, container=container, position='1:1', project=lims_project, name=sample_name, udf=udf_data)
-            print sample.name, sample.artifact.name
+            sample = Sample.create(
+                lims,
+                container=container,
+                position='1:1',
+                project=lims_project,
+                name=sample_name,
+                udf=udf_data
+            )
+            print(sample.name, sample.artifact.name)
 
             # Add reagent label (barcode)
             artifact = sample.artifact
@@ -155,5 +192,10 @@ def submit_dx_samples():
 
             lims.route_artifacts([sample.artifact], workflow_uri=workflow.uri)
 
-        return render_template('submit_dx_samples_done.html', title='Submit DX samples', project_name=lims_project.name, form=form)
+        return render_template(
+            'submit_dx_samples_done.html',
+            title='Submit DX samples',
+            project_name=lims_project.name,
+            form=form
+        )
     return render_template('submit_dx_samples.html', title='Submit DX samples', form=form)
