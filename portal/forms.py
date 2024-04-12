@@ -30,7 +30,7 @@ class SubmitSampleForm(FlaskForm):
     parsed_samples = []
     sum_exome_count = 0
 
-    def validate(self):
+    def validate(self, extra_validators=[]):
         """Extra validation, used to validate submitted samples."""
         self.parsed_samples = []
         self.sum_exome_count = 0
@@ -154,7 +154,7 @@ class SubmitDXSampleForm(FlaskForm):
     parsed_samples = []
     sum_exome_count = 0
 
-    def validate(self):
+    def validate(self, extra_validators=[]):
         """Extra validation, used to validate submitted samples."""
         self.parsed_samples = {}
         self.parsed_worklist = {}
