@@ -265,6 +265,7 @@ class SubmitDXSampleForm(FlaskForm):
         }
 
         for line in self.helix_worklist.data:
+            line = line.decode('utf-8')
             if not header:
                 header = line.rstrip().split(',')
                 for udf in udf_column:
