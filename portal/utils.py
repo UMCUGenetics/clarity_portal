@@ -6,6 +6,8 @@ from email.mime.text import MIMEText
 from smtplib import SMTP
 from mimetypes import guess_type
 
+from tenacity import retry, stop_after_attempt, wait_fixed
+
 
 class WSGIMiddleware(object):
     """WSGI Middleware."""
@@ -79,3 +81,8 @@ def transform_sex(value):
 def substrings_in_list(substrings, string):
     """Check if substrings are in string."""
     return any(substring in string for substring in substrings)
+
+
+@retry(stop=stop_after_attempt(2), wait=wait_fixed(1))
+def check_lims_connection(lims):
+    lims.check_version()
