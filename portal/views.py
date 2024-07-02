@@ -7,10 +7,11 @@ from xml.dom import minidom
 from flask import render_template, url_for, redirect
 from werkzeug.utils import secure_filename
 from genologics.entities import Sample, Project, Containertype, Container, Workflow
+from tenacity import RetryError
 
 from . import app, lims
 from .forms import SubmitSampleForm, SubmitDXSampleForm
-from .utils import send_email
+from .utils import send_email, check_lims_connection
 
 
 @app.route('/')
@@ -51,6 +52,12 @@ def removed_samples():
 @app.route('/submit_samples', methods=['GET', 'POST'])
 def submit_samples():
     form = SubmitSampleForm()
+
+    # Check LIMS connection
+    try:
+        check_lims_connection(lims)
+    except RetryError:
+        return render_template('lims_error.html', title='LIMS error')
 
     if form.validate_on_submit():
         # Create lims project
@@ -142,6 +149,12 @@ def submit_samples():
 @app.route('/submit_dx_samples', methods=['GET', 'POST'])
 def submit_dx_samples():
     form = SubmitDXSampleForm()
+
+    # Check LIMS connection
+    try:
+        check_lims_connection(lims)
+    except RetryError:
+        return render_template('lims_error.html', title='LIMS error')
 
     if form.validate_on_submit():
         container_type = Containertype(lims, id='2')  # Tube
